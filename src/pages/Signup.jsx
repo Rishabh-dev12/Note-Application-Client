@@ -20,7 +20,7 @@ export default function Signup() {
     }
 
     try {
-      const res = await networkRequest().post(endpoints.SIGNUP, form);
+      const res = await networkRequest({}).post(endpoints.SIGNUP, form);
       alert("Signup successful 🎉");
       console.log(res.data);
       window.location.href = "/login";
