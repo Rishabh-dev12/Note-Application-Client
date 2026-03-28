@@ -23,7 +23,7 @@ export default function Signup() {
       const res = await networkRequest().post(endpoints.SIGNUP, form);
       alert("Signup successful 🎉");
       console.log(res.data);
-      window.location.href = "/";
+      window.location.href = "/login";
     } catch (err) {
       alert("Signup failed ❌");
     }
