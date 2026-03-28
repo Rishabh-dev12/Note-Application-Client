@@ -1,6 +1,6 @@
 import { useState } from "react";
-import axios from "axios";
 import { endpoints } from "../services/endpoint";
+import networkRequest from "../services/api";
 
 export default function Signup() {
   const [form, setForm] = useState({

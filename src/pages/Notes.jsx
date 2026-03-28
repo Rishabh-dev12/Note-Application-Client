@@ -103,7 +103,7 @@ export default function Notes() {
 
   const handleLogout = async () => {
     try {
-      await networkRequest().post(
+      await networkRequest({}).post(
         endpoints.LOGOUT,
         {},
         {
