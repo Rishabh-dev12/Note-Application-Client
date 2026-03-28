@@ -1,12 +1,14 @@
 import { useState } from "react";
 import axios from "axios";
+import networkRequest from "../services/api";
+import { endpoints } from "../services/endpoint";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
 
   const login = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/login", form);
+      const res = await networkRequest().post(endpoints.LOGIN, form);
       localStorage.setItem("token", res.data.token);
       alert("Login successful 🚀");
       window.location.href = "/notes";

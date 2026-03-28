@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { endpoints } from "../services/endpoint";
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -19,7 +20,7 @@ export default function Signup() {
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/signup", form);
+      const res = await networkRequest().post(endpoints.SIGNUP, form);
       alert("Signup successful 🎉");
       console.log(res.data);
       window.location.href = "/";

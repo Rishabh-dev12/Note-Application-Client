@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import networkRequest from "../services/api";
+import { endpoints } from "../services/endpoint";
 
 export default function Notes() {
   const [notes, setNotes] = useState([]);
@@ -37,14 +39,13 @@ export default function Notes() {
   const fetchNotes = async () => {
     try {
       const headers = token ? { authorization: `Bearer ${token}` } : {};
-      const res = await axios.post("http://localhost:5000/getNotes", {}, { headers });
+      const res = await networkRequest({}).post(endpoints.GET_NOTES, {}, { headers });
       setNotes(res.data);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // ✅ Save or Update Note
   const saveNote = async () => {
     if (!form.title || !form.content) {
       return alert("All fields required ❌");
@@ -52,27 +53,23 @@ export default function Notes() {
 
     try {
       if (editingId) {
-        const res = await axios.put(
-          `http://localhost:5000/updateNote/${editingId}`,
+        const res = await networkRequest().post(
+          `${endpoints.UPDATE_NOTE}/${editingId}`,
           form,
           {
             headers: {
               authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
         setNotes(notes.map((n) => (n.id === editingId ? res.data : n)));
         setEditingId(null);
       } else {
-        const res = await axios.post(
-          "http://localhost:5000/createNote",
-          form,
-          {
-            headers: {
-              authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await networkRequest({}).post(endpoints.CREATE_NOTE, form, {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
         setNotes([res.data, ...notes]);
       }
 
@@ -83,14 +80,15 @@ export default function Notes() {
     }
   };
 
-  // ✅ Delete Note
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/deleteNote/${id}`, {
-        headers: {
-          authorization: `Bearer ${token}`,
+      await networkRequest().post(
+        `${endpoints.DELETE_NOTE}/${id}`,
+        {},
+        {
+          headers: { authorization: `Bearer ${token}` },
         },
-      });
+      );
       setNotes(notes.filter((n) => n.id !== id));
     } catch (err) {
       console.error(err);
@@ -98,7 +96,6 @@ export default function Notes() {
     }
   };
 
-  // ✅ Edit Note
   const editNote = (note) => {
     setForm({ title: note.title, content: note.content });
     setEditingId(note.id);
@@ -106,9 +103,13 @@ export default function Notes() {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:5000/logout", {}, {
-        headers: { authorization: `Bearer ${token}` }
-      });
+      await networkRequest().post(
+        endpoints.LOGOUT,
+        {},
+        {
+          headers: { authorization: `Bearer ${token}` },
+        },
+      );
       localStorage.removeItem("token");
       navigate("/login");
     } catch (err) {
@@ -121,9 +122,10 @@ export default function Notes() {
     fetchNotes();
   }, []);
 
-  const filteredNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.content.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -167,9 +169,7 @@ export default function Notes() {
             placeholder="Title"
             value={form.title}
             className="w-full mb-3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            onChange={(e) =>
-              setForm({ ...form, title: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
 
           <textarea
@@ -177,9 +177,7 @@ export default function Notes() {
             value={form.content}
             rows="4"
             className="w-full mb-4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-            onChange={(e) =>
-              setForm({ ...form, content: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, content: e.target.value })}
           />
 
           <div className="flex gap-2">
@@ -207,7 +205,9 @@ export default function Notes() {
 
       {/* Search Bar */}
       <div className="max-w-2xl mx-auto mb-8 relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+          🔍
+        </span>
         <input
           type="text"
           placeholder="Search by title or content..."
@@ -241,13 +241,11 @@ export default function Notes() {
                       : "N/A"}
                   </span>
 
-                  {note.updated_at &&
-                    note.updated_at !== note.created_at && (
-                      <span className="text-[11px]">
-                        🔄 Updated:{" "}
-                        {new Date(note.updated_at).toLocaleString()}
-                      </span>
-                    )}
+                  {note.updated_at && note.updated_at !== note.created_at && (
+                    <span className="text-[11px]">
+                      🔄 Updated: {new Date(note.updated_at).toLocaleString()}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -276,7 +274,9 @@ export default function Notes() {
           ))
         ) : (
           <p className="text-center col-span-full text-gray-500">
-            {notes.length === 0 ? "No notes yet 😔" : "No matching notes found 😔"}
+            {notes.length === 0
+              ? "No notes yet 😔"
+              : "No matching notes found 😔"}
           </p>
         )}
       </div>
@@ -285,8 +285,12 @@ export default function Notes() {
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Confirm Logout</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to log out of your account?</p>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              Confirm Logout
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to log out of your account?
+            </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowLogoutModal(false)}
