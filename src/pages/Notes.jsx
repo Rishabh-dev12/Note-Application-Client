@@ -39,7 +39,11 @@ export default function Notes() {
   const fetchNotes = async () => {
     try {
       const headers = token ? { authorization: `Bearer ${token}` } : {};
-      const res = await networkRequest({}).post(endpoints.GET_NOTES, {}, { headers });
+      const res = await networkRequest({}).post(
+        endpoints.GET_NOTES,
+        {},
+        { headers },
+      );
       setNotes(res.data);
     } catch (err) {
       console.error(err);
@@ -48,7 +52,7 @@ export default function Notes() {
 
   const saveNote = async () => {
     if (!form.title || !form.content) {
-      return alert("All fields required ❌");
+      return alert("All fields required ");
     }
 
     try {
@@ -76,7 +80,7 @@ export default function Notes() {
       setForm({ title: "", content: "" });
     } catch (err) {
       console.error(err);
-      alert("Error saving note ❌");
+      alert("Error saving note ");
     }
   };
 
@@ -92,7 +96,7 @@ export default function Notes() {
       setNotes(notes.filter((n) => n.id !== id));
     } catch (err) {
       console.error(err);
-      alert("Error deleting note ❌");
+      alert("Error deleting note ");
     }
   };
 
@@ -114,7 +118,7 @@ export default function Notes() {
       navigate("/login");
     } catch (err) {
       console.error(err);
-      alert("Error logging out ❌");
+      alert("Error logging out ");
     }
   };
 

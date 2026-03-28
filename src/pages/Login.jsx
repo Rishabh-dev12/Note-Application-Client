@@ -1,19 +1,21 @@
 import { useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import networkRequest from "../services/api";
 import { endpoints } from "../services/endpoint";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
 
   const login = async () => {
     try {
       const res = await networkRequest().post(endpoints.LOGIN, form);
       localStorage.setItem("token", res.data.token);
-      alert("Login successful 🚀");
-      window.location.href = "/notes";
+      toast.success("Login successful 🚀");
+      navigate("/notes");
     } catch (err) {
-      alert("Invalid credentials ❌");
+      toast.error("Invalid credentials ");
     }
   };
 
@@ -60,7 +62,7 @@ export default function Login() {
           Don’t have an account?{" "}
           <span
             className="text-indigo-600 cursor-pointer hover:underline"
-            onClick={() => (window.location.href = "/signup")}
+            onClick={() => navigate("/signup")}
           >
             Sign up
           </span>

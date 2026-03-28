@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { endpoints } from "../services/endpoint";
 import networkRequest from "../services/api";
 
 export default function Signup() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -12,20 +15,20 @@ export default function Signup() {
 
   const signup = async () => {
     if (!form.name || !form.email || !form.password) {
-      return alert("All fields are required ❌");
+      return toast.error("All fields are required ");
     }
 
     if (form.password !== form.confirmPassword) {
-      return alert("Passwords do not match ❌");
+      return toast.error("Passwords do not match ");
     }
 
     try {
       const res = await networkRequest({}).post(endpoints.SIGNUP, form);
-      alert("Signup successful 🎉");
+      toast.success("Signup successful 🎉");
       console.log(res.data);
-      window.location.href = "/login";
+      navigate("/login");
     } catch (err) {
-      alert("Signup failed ❌");
+      toast.error("Signup failed ");
     }
   };
 
@@ -96,7 +99,7 @@ export default function Signup() {
           Already have an account?{" "}
           <span
             className="text-purple-600 cursor-pointer hover:underline"
-            onClick={() => (window.location.href = "/")}
+            onClick={() => navigate("/login")}
           >
             Login
           </span>
