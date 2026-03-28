@@ -1,3 +1,4 @@
 import { io } from "socket.io-client";
+import { BASE_URL_PATH } from "../utils/constants";
 
-export const socket = io("http://localhost:5000");
+export const socket = io(BASE_URL_PATH);
